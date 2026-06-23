@@ -1,0 +1,3 @@
+# Postman environment files with real credentials — never commit these
+*.env.postman_environment.json
+github-env.postman_environment.json

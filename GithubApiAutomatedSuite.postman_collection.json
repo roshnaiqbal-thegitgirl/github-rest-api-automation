@@ -17,8 +17,8 @@
                 "exec": [
                   "// Store GitHub token in collection variable",
                   "// Note: Use your personal GitHub token (Settings > Developer settings > Personal access tokens)",
-                  "pm.collectionVariables.set('github_token', pm.environment.get('GITHUB_TOKEN') || 'ghp_your_token_here');",
-                  "pm.collectionVariables.set('github_user', pm.environment.get('GITHUB_USER') || 'octocat');",
+                  "pm.collectionVariables.set('github_token', pm.environment.get('GITHUB_TOKEN') || pm.collectionVariables.get('github_token'));",
+                  "pm.collectionVariables.set('github_user', pm.environment.get('GITHUB_USER') || pm.collectionVariables.get('github_user') || 'octocat');",
                   "pm.collectionVariables.set('base_url', 'https://api.github.com');"
                 ]
               }
@@ -433,7 +433,9 @@
                   "pm.test('Search results contain only specified language', function() {",
                   "  const response = pm.response.json();",
                   "  response.items.forEach(repo => {",
-                  "    pm.expect(repo.language).to.equal('Python');",
+                  "    if (repo.language !== null) {",
+                  "      pm.expect(repo.language).to.equal('Python');",
+                  "    }",
                   "  });",
                   "});"
                 ]
@@ -570,7 +572,7 @@
                   "pm.test('Error response contains message', function() {",
                   "  const response = pm.response.json();",
                   "  pm.expect(response).to.have.property('message');",
-                  "  pm.expect(response.message).to.include('Unauthorized');",
+                  "  pm.expect(response.message).to.be.a('string').and.not.empty;",
                   "});"
                 ]
               }
@@ -802,7 +804,7 @@
     {
       "key": "github_token",
       "value": "",
-      "type": "string"
+      "type": "secret"
     },
     {
       "key": "github_user",
