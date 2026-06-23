@@ -12,25 +12,54 @@
           "name": "Set Auth Token",
           "event": [
             {
-              "listen": "test",
+              "listen": "prerequest",
               "script": {
                 "exec": [
-                  "// Store GitHub token in collection variable",
-                  "// Note: Use your personal GitHub token (Settings > Developer settings > Personal access tokens)",
                   "pm.collectionVariables.set('github_token', pm.environment.get('GITHUB_TOKEN') || pm.collectionVariables.get('github_token'));",
                   "pm.collectionVariables.set('github_user', pm.environment.get('GITHUB_USER') || pm.collectionVariables.get('github_user') || 'octocat');",
                   "pm.collectionVariables.set('base_url', 'https://api.github.com');"
                 ]
               }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Auth token is valid', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Token grants access to authenticated user', function() {",
+                  "  const user = pm.response.json();",
+                  "  pm.expect(user).to.have.property('login');",
+                  "  pm.collectionVariables.set('auth_user', user.login);",
+                  "});"
+                ]
+              }
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{github_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github.v3+json",
+                "type": "text"
+              }
+            ],
             "url": {
-              "raw": "https://api.github.com/user",
-              "protocol": "https",
-              "host": ["api", "github", "com"],
+              "raw": "{{base_url}}/user",
+              "host": ["{{base_url}}"],
               "path": ["user"]
             }
           }
